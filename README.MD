@@ -30,7 +30,7 @@ El estudiante reconocerá el origen y evolución de la industrialización de la 
 ```
 📦 ingenieria-industrial-nanotecnologia
 │
-├── 📂 presentaciones/        # Archivos .tex de las clases (Overleaf)
+├── 📂 presentaciones/        # Archivos PDF
 ├── 📂 actividades/           # Guías de lectura, ejercicios y tareas
 ├── 📂 encuadre/              # Hoja de encuadre de la materia
 
