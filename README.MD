@@ -25,6 +25,21 @@ El estudiante reconocerá el origen y evolución de la industrialización de la 
 
 ---
 
+## 📺 Videos
+
+**Nanotecnología: El futuro ya está aquí**
+*Instituto de Nanociencia de Aragón (INMA) — Universidad de Zaragoza, 2015*
+
+| Episodio | Tema | Ver |
+|----------|------|-----|
+| Ep. 1 | El mundo de lo pequeño — Nanosensores y grafeno | [▶ Ver](https://www.youtube.com/watch?v=gLkZe4HwnbE) |
+| Ep. 2 | La nueva medicina — Sensores y dispositivos médicos | [▶ Ver](https://www.youtube.com/watch?v=W95PVpQpodQ) |
+| Ep. 3 | Los nuevos materiales — Transferencia tecnológica | [▶ Ver](https://www.youtube.com/watch?v=3YH6QIjihAk) |
+
+📄 [Actividad relacionada](actividades/Actividad_Clase_3_Documental_Nanotecnologia.pdf)
+
+---
+
 ## 🎮 Actividades Interactivas
 
 | Actividad | Unidad | Enlace |
