@@ -168,7 +168,7 @@ const questions = [
   { q: "El Boston Consulting Group define un número específico de tecnologías como pilares estratégicos de la Industria 4.0. ¿Cuántas son?", opts: ["5 tecnologías", "7 tecnologías", "9 tecnologías", "12 tecnologías"], ans: 2, cat: "México 4.0", catClass: "cat-mexico40", dif: "Avanzado", exp: "El Boston Consulting Group define 9 tecnologías pilares de la Industria 4.0: robots autónomos, simulación, integración horizontal y vertical, Internet industrial de las cosas, ciberseguridad, la nube, fabricación aditiva, realidad aumentada, y analítica y big data." }
 ];
 
-let current = 0, score = 0, correct = 0, streak = 0, maxStreak = 0, answered = false, timer = null, timeLeft = 20, shuffled = [];
+let current = 0, score = 0, correct = 0, streak = 0, maxStreak = 0, answered = false, timer = null, timeLeft = 20, shuffled = [], currentAns = 0;
 
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
 
@@ -200,7 +200,10 @@ function renderQuestion() {
   const optsEl = document.getElementById('options');
   optsEl.innerHTML = '';
   const letters = ['A', 'B', 'C', 'D'];
-  q.opts.forEach((opt, i) => {
+  const correctText = q.opts[q.ans];
+  const shuffledOpts = shuffle(q.opts);
+  currentAns = shuffledOpts.indexOf(correctText);
+  shuffledOpts.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
     btn.innerHTML = `<span class="option-letter">${letters[i]}</span>${opt}`;
@@ -229,7 +232,7 @@ function timeOut() {
   answered = true;
   const q = shuffled[current];
   const btns = document.querySelectorAll('.option-btn');
-  btns.forEach((b, i) => { b.disabled = true; if (i === q.ans) b.classList.add('reveal'); });
+  btns.forEach((b, i) => { b.disabled = true; if (i === currentAns) b.classList.add('reveal'); });
   streak = 0;
   document.getElementById('streak').innerHTML = `${streak} <i class="ti ti-flame" aria-hidden="true" style="font-size:18px"></i>`;
   showFeedback(false, '⏱ Tiempo agotado. ' + q.exp);
@@ -243,7 +246,7 @@ function selectAnswer(idx) {
   const q = shuffled[current];
   const btns = document.querySelectorAll('.option-btn');
   btns.forEach(b => b.disabled = true);
-  if (idx === q.ans) {
+  if (idx === currentAns) {
     btns[idx].classList.add('correct');
     const points = Math.max(10, timeLeft * 5);
     score += points;
@@ -256,7 +259,7 @@ function selectAnswer(idx) {
     showFeedback(true, '✓ Correcto! +' + points + ' pts. ' + q.exp);
   } else {
     btns[idx].classList.add('wrong');
-    btns[q.ans].classList.add('reveal');
+    btns[currentAns].classList.add('reveal');
     streak = 0;
     document.getElementById('streak').innerHTML = `${streak} <i class="ti ti-flame" aria-hidden="true" style="font-size:18px"></i>`;
     showFeedback(false, '✗ Incorrecto. ' + q.exp);
