@@ -25,6 +25,14 @@ El estudiante reconocerá el origen y evolución de la industrialización de la 
 
 ---
 
+## 🎮 Actividades Interactivas
+
+| Actividad | Unidad | Enlace |
+|-----------|--------|--------|
+| Juego de Trivia — Historia de la Ingeniería Industrial | Unidad I | [▶ Jugar](https://htmlpreview.github.io/?https://github.com/SolKacil/ingenieria-industrial/blob/master/juego_trivia_unidad1_ingenieria_industrial.html) |
+
+---
+
 ## 📁 Contenido del Repositorio
 
 ```
@@ -33,6 +41,7 @@ El estudiante reconocerá el origen y evolución de la industrialización de la 
 ├── 📂 presentaciones/        # Archivos PDF
 ├── 📂 actividades/           # Guías de lectura, ejercicios y tareas
 ├── 📂 encuadre/              # Hoja de encuadre de la materia
+├── 🎮 juego_trivia_unidad1_ingenieria_industrial.html
 
 ```
 
