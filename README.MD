@@ -8,6 +8,12 @@
 
 ---
 
+> ### 🆕 Nueva Actividad Disponible
+> Se ha publicado una nueva actividad en la carpeta **[`actividades/Cartel_Producto`](actividades/Cartel_Producto/)**.  
+> Revisa los archivos dentro de la carpeta para conocer los detalles de la actividad.
+
+---
+
 ## 📋 Propósito de la Asignatura
 
 El estudiante reconocerá el origen y evolución de la industrialización de la producción; las actividades que realiza la Ingeniería Industrial; la administración de sistemas productivos; los procesos de manufactura, el almacenamiento y la cadena de suministros para coadyuvar en la **optimización y escalamiento de la producción de materiales nanoestructurados**, bajo un enfoque sustentable y social.
