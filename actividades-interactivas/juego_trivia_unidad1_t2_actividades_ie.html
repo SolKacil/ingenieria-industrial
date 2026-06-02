@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trivia — Actividades de la Ingeniería Industrial</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f3f4f6;
+      --color-text-primary: #111827;
+      --color-text-secondary: #6b7280;
+      --color-border-primary: #d1d5db;
+      --color-border-secondary: #e5e7eb;
+      --color-border-tertiary: #f3f4f6;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); background: #f9fafb; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+    .game { padding: 1rem 0; max-width: 680px; width: 100%; }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .badge { font-size: 12px; padding: 4px 10px; border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+    .score-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+    .metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px; text-align: center; }
+    .metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+    .metric-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+    .progress-bar { height: 4px; background: var(--color-background-secondary); border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden; }
+    .progress-fill { height: 100%; background: #1D9E75; border-radius: 2px; transition: width 0.4s ease; }
+    .question-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+    .question-meta { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 0.75rem; display: flex; gap: 8px; align-items: center; }
+    .cat-badge { padding: 2px 8px; border-radius: var(--border-radius-md); font-size: 11px; }
+    .cat-ergonomia    { background: #E0F2FE; color: #0C4A6E; }
+    .cat-almacenaje   { background: #FAEEDA; color: #633806; }
+    .cat-cadena       { background: #E1F5EE; color: #085041; }
+    .cat-distribucion { background: #EEEDFE; color: #3C3489; }
+    .cat-calidad      { background: #FCEBEB; color: #501313; }
+    .cat-tiempos      { background: #E6F7F4; color: #0D5F52; }
+    .cat-produccion   { background: #FEF3C7; color: #78350F; }
+    .cat-general      { background: #F1F5F9; color: #1E3A5F; }
+    .question-text { font-size: 16px; font-weight: 500; color: var(--color-text-primary); line-height: 1.5; }
+    .options { display: grid; gap: 8px; margin-top: 1rem; }
+    .option-btn { width: 100%; text-align: left; padding: 12px 16px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); cursor: pointer; font-size: 14px; color: var(--color-text-primary); transition: background 0.15s, border-color 0.15s; display: flex; align-items: center; gap: 10px; }
+    .option-btn:hover:not(:disabled) { background: var(--color-background-secondary); border-color: var(--color-border-primary); }
+    .option-btn.correct { background: #E1F5EE; border-color: #1D9E75; color: #085041; }
+    .option-btn.wrong   { background: #FCEBEB; border-color: #E24B4A; color: #501313; }
+    .option-btn.reveal  { background: #E1F5EE; border-color: #1D9E75; color: #085041; opacity: 0.7; }
+    .option-letter { width: 24px; height: 24px; border-radius: 50%; background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+    .feedback { padding: 12px 16px; border-radius: var(--border-radius-md); margin-top: 1rem; font-size: 14px; line-height: 1.5; display: none; }
+    .feedback.show { display: block; }
+    .feedback.correct { background: #E1F5EE; color: #085041; border: 0.5px solid #1D9E75; }
+    .feedback.wrong   { background: #FCEBEB; color: #501313; border: 0.5px solid #E24B4A; }
+    .nav { display: flex; justify-content: flex-end; margin-top: 1rem; }
+    .btn-next { padding: 10px 20px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); cursor: pointer; font-size: 14px; color: var(--color-text-primary); display: none; }
+    .btn-next.show { display: block; }
+    .btn-next:hover { background: var(--color-background-secondary); }
+    .results { text-align: center; padding: 2rem 1rem; }
+    .results-icon { font-size: 48px; margin-bottom: 1rem; }
+    .results-title { font-size: 22px; font-weight: 500; margin-bottom: 0.5rem; color: var(--color-text-primary); }
+    .results-sub { font-size: 15px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+    .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+    .btn-restart { padding: 10px 24px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); cursor: pointer; font-size: 14px; color: var(--color-text-primary); margin: 0 6px; }
+    .btn-restart:hover { background: var(--color-background-secondary); }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .start { text-align: center; padding: 2rem 1rem; background: var(--color-background-primary); border-radius: var(--border-radius-lg); box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+    .start-title { font-size: 22px; font-weight: 500; margin-bottom: 0.5rem; color: var(--color-text-primary); }
+    .start-sub { font-size: 15px; color: var(--color-text-secondary); margin-bottom: 1.5rem; line-height: 1.6; }
+    .cats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 1.5rem; }
+    .btn-start { padding: 12px 32px; border-radius: var(--border-radius-md); border: 0.5px solid #1D9E75; background: #E1F5EE; cursor: pointer; font-size: 15px; color: #085041; font-weight: 500; }
+    .btn-start:hover { background: #9FE1CB; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  </style>
+</head>
+<body>
+
+<div class="game">
+
+  <h2 class="sr-only">Juego de trivia sobre las Actividades de la Ingeniería Industrial — T1U2</h2>
+
+  <div class="screen active" id="screen-start">
+    <div class="start">
+      <div style="font-size: 40px; margin-bottom: 1rem;"><i class="ti ti-settings-cog" aria-hidden="true"></i></div>
+      <p class="start-title">Trivia — Actividades del IE</p>
+      <p class="start-sub">Las 7 actividades principales de la Ingeniería Industrial<br>20 preguntas sobre ergonomía, almacenaje, cadena de suministros, distribución de planta, calidad, tiempos y movimientos, y producción</p>
+      <div class="cats">
+        <span class="cat-badge cat-ergonomia">Ergonomía</span>
+        <span class="cat-badge cat-almacenaje">Almacenaje</span>
+        <span class="cat-badge cat-cadena">Cadena de Suministros</span>
+        <span class="cat-badge cat-distribucion">Distribución de Planta</span>
+        <span class="cat-badge cat-calidad">Control de Calidad</span>
+        <span class="cat-badge cat-tiempos">Tiempos y Movimientos</span>
+        <span class="cat-badge cat-produccion">Producción</span>
+        <span class="cat-badge cat-general">General</span>
+      </div>
+      <button class="btn-start" onclick="startGame()">Comenzar juego</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-game">
+    <div class="header">
+      <span class="badge" id="q-counter">Pregunta 1 de 20</span>
+      <span class="badge" id="timer-badge"><i class="ti ti-clock" aria-hidden="true"></i> 20s</span>
+    </div>
+    <div class="score-bar">
+      <div class="metric"><div class="metric-label">Puntuación</div><div class="metric-value" id="score">0</div></div>
+      <div class="metric"><div class="metric-label">Correctas</div><div class="metric-value" id="correct-count">0</div></div>
+      <div class="metric"><div class="metric-label">Racha</div><div class="metric-value" id="streak">0 <i class="ti ti-flame" aria-hidden="true" style="font-size:18px"></i></div></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:5%"></div></div>
+    <div class="question-card">
+      <div class="question-meta">
+        <span class="cat-badge" id="q-cat"></span>
+        <span id="q-diff"></span>
+      </div>
+      <p class="question-text" id="q-text"></p>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <div class="nav">
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">Siguiente <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-results">
+    <div class="results">
+      <div class="results-icon" id="res-icon"></div>
+      <p class="results-title" id="res-title"></p>
+      <p class="results-sub" id="res-sub"></p>
+      <div class="results-grid">
+        <div class="metric"><div class="metric-label">Puntuación</div><div class="metric-value" id="res-score"></div></div>
+        <div class="metric"><div class="metric-label">Correctas</div><div class="metric-value" id="res-correct"></div></div>
+        <div class="metric"><div class="metric-label">Mejor racha</div><div class="metric-value" id="res-streak"></div></div>
+      </div>
+      <div>
+        <button class="btn-restart" onclick="startGame()">Jugar de nuevo</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    q: "¿Qué estudia la Ergonomía como disciplina dentro de la Ingeniería Industrial?",
+    opts: ["El flujo de materiales desde proveedores hasta clientes", "La relación entre el ser humano, las máquinas y el entorno de trabajo", "El diseño de líneas de ensamblaje automatizadas", "La gestión del inventario de productos terminados"],
+    ans: 1, cat: "Ergonomía", catClass: "cat-ergonomia", dif: "Básico",
+    exp: "La Ergonomía estudia la relación entre el ser humano, las máquinas y el entorno de trabajo, con el objetivo de adaptar el trabajo al trabajador. Busca aumentar la productividad reduciendo fatiga, lesiones y estrés."
+  },
+  {
+    q: "¿Cuál es el principio fundamental que define a la Ergonomía?",
+    opts: ["Adaptar al trabajador a las condiciones de la máquina", "Maximizar la velocidad de producción sin importar el esfuerzo físico", "Adaptar el trabajo al trabajador, no al revés", "Reducir el número de operarios en la línea de producción"],
+    ans: 2, cat: "Ergonomía", catClass: "cat-ergonomia", dif: "Básico",
+    exp: "El principio fundamental de la Ergonomía es adaptar el trabajo al trabajador, no al revés. Esto implica rediseñar puestos, herramientas y procesos para que se ajusten a las capacidades humanas, reduciendo lesiones y aumentando la productividad."
+  },
+  {
+    q: "¿Qué resultados busca obtener la Ergonomía al rediseñar el entorno de trabajo?",
+    opts: ["Aumentar la velocidad de la línea a costa del esfuerzo físico del operario", "Reducir únicamente el costo de los equipos de protección personal", "Aumentar la productividad reduciendo fatiga, lesiones y estrés", "Maximizar el rendimiento de las máquinas sobre el bienestar del operario"],
+    ans: 2, cat: "Ergonomía", catClass: "cat-ergonomia", dif: "Intermedio",
+    exp: "La Ergonomía busca tres resultados principales al adaptar el trabajo al trabajador: aumentar la productividad, reducir la fatiga y prevenir lesiones y estrés. Esto se logra rediseñando puestos, alturas, herramientas y secuencias de trabajo para que se ajusten a las capacidades humanas."
+  },
+  {
+    q: "¿Qué es el Almacenaje dentro de las actividades del Ingeniero Industrial?",
+    opts: ["La planeación de la producción diaria en planta", "La gestión eficiente del espacio físico donde se resguardan materias primas, materiales en proceso y productos terminados", "El control estadístico de defectos en línea de producción", "La selección y evaluación de proveedores externos"],
+    ans: 1, cat: "Almacenaje", catClass: "cat-almacenaje", dif: "Básico",
+    exp: "El Almacenaje es la gestión eficiente del espacio físico donde se resguardan materias primas, materiales en proceso y productos terminados. Es un sistema controlado de entrada, ubicación, registro y salida de materiales."
+  },
+  {
+    q: "¿Qué tipos de materiales abarca un sistema de almacenaje dentro de una empresa industrial?",
+    opts: ["Solo los productos terminados listos para su distribución", "Solo las materias primas que provienen de proveedores externos", "Materias primas, materiales en proceso y productos terminados", "Únicamente los materiales en proceso dentro de la línea de producción"],
+    ans: 2, cat: "Almacenaje", catClass: "cat-almacenaje", dif: "Intermedio",
+    exp: "El sistema de almacenaje cubre los tres estados del material dentro de la empresa: materias primas (antes de entrar al proceso), materiales en proceso (en transformación) y productos terminados (listos para distribuirse). El IE diseña el flujo controlado de entrada, ubicación, registro y salida de cada uno."
+  },
+  {
+    q: "¿Qué principio aplica la clasificación ABC en la gestión de almacenes?",
+    opts: ["Guardar todos los productos en orden alfabético por nombre", "Ubicar los productos más usados cerca de la salida para reducir tiempos de búsqueda", "Separar los productos por color y tamaño del empaque", "Asignar una zona exclusiva a cada proveedor en el almacén"],
+    ans: 1, cat: "Almacenaje", catClass: "cat-almacenaje", dif: "Intermedio",
+    exp: "La clasificación ABC prioriza los recursos: el 20% de los productos más usados (categoría A) se ubican cerca de la salida. En el ejemplo, el tiempo de búsqueda bajó de 20 a 3 minutos al aplicar este principio."
+  },
+  {
+    q: "¿Qué es la Cadena de Suministros según la Ingeniería Industrial?",
+    opts: ["El proceso interno de fabricación dentro de la planta", "Red de organizaciones, recursos y actividades que intervienen en el flujo de un producto desde la materia prima hasta el consumidor final", "El sistema de control de calidad del producto terminado", "La gestión del personal en cada turno de producción"],
+    ans: 1, cat: "Cadena de Suministros", catClass: "cat-cadena", dif: "Básico",
+    exp: "La Cadena de Suministros es la red de organizaciones, recursos y actividades que intervienen en el flujo de un producto desde la materia prima hasta el consumidor final. Incluye proveedores, transporte, almacenes, producción y distribución."
+  },
+  {
+    q: "¿Cuál de las siguientes acciones corresponde al rol del IE dentro de la Cadena de Suministros?",
+    opts: ["Diseñar los productos que se fabricarán en la planta", "Seleccionar y evaluar proveedores, y diseñar el flujo de materiales", "Gestionar al equipo de ventas y la atención al cliente", "Determinar los precios de venta al consumidor final"],
+    ans: 1, cat: "Cadena de Suministros", catClass: "cat-cadena", dif: "Intermedio",
+    exp: "El IE tiene cuatro roles clave en la Cadena de Suministros: seleccionar y evaluar proveedores, diseñar el flujo de materiales, sincronizar la producción con el abastecimiento, e implementar sistemas de trazabilidad. Su objetivo es garantizar que el material fluya sin interrupciones desde el proveedor hasta el cliente."
+  },
+  {
+    q: "¿Cuál es el objetivo principal de la Distribución de Planta?",
+    opts: ["Maximizar el número de máquinas instaladas en la planta", "Minimizar recorridos, reducir tiempos muertos y garantizar seguridad", "Estandarizar los salarios del personal operativo", "Reducir el inventario de productos en proceso"],
+    ans: 1, cat: "Distribución de Planta", catClass: "cat-distribucion", dif: "Básico",
+    exp: "La Distribución de Planta busca la disposición física óptima de equipos, maquinaria, estaciones de trabajo y almacenes. Su objetivo es minimizar recorridos, reducir tiempos muertos y garantizar la seguridad del personal."
+  },
+  {
+    q: "¿Qué tipo de distribución de planta corresponde a una línea de ensamblaje tradicional?",
+    opts: ["Por proceso: máquinas agrupadas por tipo", "Por posición fija: el producto no se mueve", "Celular: grupos para familias de partes", "Por producto: flujo lineal"],
+    ans: 3, cat: "Distribución de Planta", catClass: "cat-distribucion", dif: "Básico",
+    exp: "La distribución por producto tiene un flujo lineal donde el producto avanza de una estación a la siguiente, como en una línea de ensamblaje. Es la distribución más eficiente cuando se produce un mismo artículo en grandes volúmenes."
+  },
+  {
+    q: "¿Qué tipo de distribución de planta se utiliza cuando el producto es demasiado grande o pesado para moverse durante su fabricación?",
+    opts: ["Por producto: flujo lineal", "Por proceso: máquinas agrupadas por tipo", "Celular: grupos para familias de partes", "Por posición fija: el producto no se mueve"],
+    ans: 3, cat: "Distribución de Planta", catClass: "cat-distribucion", dif: "Intermedio",
+    exp: "En la distribución por posición fija el producto permanece estático y son los trabajadores, herramientas y materiales quienes se desplazan hacia él. Se aplica en la construcción naval, aeronáutica o edificaciones, donde mover el producto en construcción sería inviable."
+  },
+  {
+    q: "¿Qué herramienta utilizó el IE para identificar que el 80% de los defectos en la empresa de galletas provenían de una sola máquina?",
+    opts: ["Carta de control estadístico", "Diagrama de Ishikawa", "Diagrama de Pareto", "Histograma de frecuencias"],
+    ans: 2, cat: "Control de Calidad", catClass: "cat-calidad", dif: "Básico",
+    exp: "El IE aplicó un diagrama de Pareto, que muestra que el 80% de los efectos provienen del 20% de las causas. Esto permitió identificar que la mayor parte de los defectos (galletas rotas, quemadas o con mal peso) venían de una sola máquina con temperatura inestable."
+  },
+  {
+    q: "¿Qué herramienta de Control de Calidad permite identificar las causas raíz de un problema mediante un diagrama de 'espina de pescado'?",
+    opts: ["Diagrama de Pareto", "Carta de control estadístico", "Diagrama de Ishikawa (causa-efecto)", "Histograma de frecuencias"],
+    ans: 2, cat: "Control de Calidad", catClass: "cat-calidad", dif: "Básico",
+    exp: "El Diagrama de Ishikawa, también llamado diagrama causa-efecto o de espina de pescado, permite visualizar de forma estructurada todas las posibles causas que generan un defecto o problema de calidad, agrupándolas en categorías como materiales, métodos, máquinas, mano de obra y medio ambiente."
+  },
+  {
+    q: "En el estudio de Tiempos y Movimientos, ¿qué determina específicamente la 'medición del trabajo'?",
+    opts: ["Cómo debe realizarse cada tarea paso a paso", "Quién es el trabajador más eficiente del equipo", "Cuánto tiempo debe tomar realizar una tarea", "Qué herramientas y equipos deben usarse"],
+    ans: 2, cat: "Tiempos y Movimientos", catClass: "cat-tiempos", dif: "Básico",
+    exp: "El estudio de Tiempos y Movimientos tiene dos componentes: el estudio de métodos determina CÓMO se hace el trabajo; la medición del trabajo determina CUÁNTO tiempo debe tomar. Juntos sirven de base para establecer el tiempo estándar."
+  },
+  {
+    q: "¿Para qué se utiliza el tiempo estándar obtenido en un estudio de Tiempos y Movimientos?",
+    opts: ["Para calcular el precio de venta del producto terminado", "Como base para incentivos salariales, programación de producción y cálculo de capacidades", "Para evaluar el desempeño individual de los supervisores de turno", "Para determinar el número mínimo de proveedores en la cadena de suministros"],
+    ans: 1, cat: "Tiempos y Movimientos", catClass: "cat-tiempos", dif: "Intermedio",
+    exp: "El tiempo estándar establece cuánto debe tardar una tarea ejecutada en condiciones normales. Se usa como base para fijar incentivos salariales por productividad, programar la producción (calcular cuánto se puede fabricar en un turno) y determinar la capacidad instalada de la planta."
+  },
+  {
+    q: "¿Cuál es el objetivo de la función de Producción dentro de la Ingeniería Industrial?",
+    opts: ["Controlar la calidad del producto durante la inspección final", "Transformar materias primas en productos terminados de forma eficiente, en el tiempo requerido y con la calidad especificada", "Seleccionar y capacitar al personal de planta", "Negociar contratos con proveedores de insumos"],
+    ans: 1, cat: "Producción", catClass: "cat-produccion", dif: "Básico",
+    exp: "La Producción abarca la planeación, programación y control de todas las actividades necesarias para transformar materias primas en productos terminados de manera eficiente, en el tiempo requerido y con la calidad especificada."
+  },
+  {
+    q: "¿Qué significa el término MRP en la función de Producción de la Ingeniería Industrial?",
+    opts: ["Manufacturing Resource Planning (Planeación de Recursos de Manufactura)", "Material Requirements Planning (Planeación de Requerimientos de Materiales)", "Maximum Rate of Production (Tasa Máxima de Producción)", "Minimum Required Personnel (Personal Mínimo Requerido)"],
+    ans: 1, cat: "Producción", catClass: "cat-produccion", dif: "Avanzado",
+    exp: "MRP significa Material Requirements Planning (Planeación de Requerimientos de Materiales). Es un sistema que calcula qué materiales se necesitan, en qué cantidad y cuándo, partiendo del plan de producción y la lista de materiales de cada producto. Es una herramienta fundamental para que el IE planee y controle la producción eficientemente."
+  },
+  {
+    q: "Según la definición del IIE (Instituto de Ingenieros Industriales), ¿de qué se ocupa la Ingeniería Industrial?",
+    opts: ["Del diseño de maquinaria y equipos industriales para la manufactura", "Del diseño, mejoramiento e instalación de sistemas integrados de personas, materiales, equipo e información", "De la administración del talento humano en empresas manufactureras", "De la investigación y desarrollo de nuevos materiales industriales"],
+    ans: 1, cat: "General", catClass: "cat-general", dif: "Básico",
+    exp: "El Instituto de Ingenieros Industriales (IIE) define la Ingeniería Industrial como la disciplina que se ocupa del diseño, mejoramiento e instalación de sistemas integrados de personas, materiales, equipo e información para especificar, pronosticar y evaluar los resultados de dichos sistemas."
+  },
+  {
+    q: "¿Por qué es importante entender la empresa como un sistema al aplicar la Ingeniería Industrial?",
+    opts: ["Porque facilita la contratación de personal con perfil multidisciplinario", "Porque ninguna área funciona de forma aislada; si una falla, las demás se ven afectadas", "Porque simplifica la toma de decisiones gerenciales en todos los niveles", "Porque permite reducir el número de departamentos y centralizar funciones"],
+    ans: 1, cat: "General", catClass: "cat-general", dif: "Intermedio",
+    exp: "El IE optimiza el sistema completo, no solo una parte. La empresa funciona con entradas (materias primas, energía, personal, información) que pasan por producción, calidad, logística y finanzas para generar salidas (productos, servicios, valor). Si un área falla, afecta a todas las demás."
+  },
+  {
+    q: "¿Cuál es la herramienta clave que usa el IE para responder la pregunta '¿Cuánto y cuándo producir?' según el resumen de las 7 actividades?",
+    opts: ["Análisis postural y therbligs", "Clasificación ABC y layout de almacén", "Mapeo de cadena e inventario de seguridad", "MRP, programación y diagrama de Gantt"],
+    ans: 3, cat: "General", catClass: "cat-general", dif: "Avanzado",
+    exp: "La actividad de Producción usa herramientas como el MRP (Material Requirements Planning), técnicas de programación de producción y el diagrama de Gantt para responder a '¿Cuánto y cuándo producir?', coordinando recursos de gente, máquinas y materiales."
+  }
+];
+
+let current = 0, score = 0, correct = 0, streak = 0, maxStreak = 0, answered = false, timer = null, timeLeft = 30, shuffled = [], currentAns = 0;
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function startGame() {
+  current = 0; score = 0; correct = 0; streak = 0; maxStreak = 0;
+  shuffled = shuffle(questions);
+  showScreen('screen-game');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion() {
+  const q = shuffled[current];
+  answered = false;
+  document.getElementById('q-counter').textContent = `Pregunta ${current + 1} de ${shuffled.length}`;
+  document.getElementById('score').textContent = score;
+  document.getElementById('correct-count').textContent = correct;
+  document.getElementById('streak').innerHTML = `${streak} <i class="ti ti-flame" aria-hidden="true" style="font-size:18px"></i>`;
+  document.getElementById('progress').style.width = `${((current) / shuffled.length) * 100}%`;
+  const catEl = document.getElementById('q-cat');
+  catEl.textContent = q.cat;
+  catEl.className = `cat-badge ${q.catClass}`;
+  document.getElementById('q-diff').textContent = q.dif;
+  document.getElementById('q-text').textContent = q.q;
+  const optsEl = document.getElementById('options');
+  optsEl.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  const correctText = q.opts[q.ans];
+  const shuffledOpts = shuffle(q.opts);
+  currentAns = shuffledOpts.indexOf(correctText);
+  shuffledOpts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span>${opt}`;
+    btn.onclick = () => selectAnswer(i);
+    optsEl.appendChild(btn);
+  });
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.textContent = '';
+  document.getElementById('btn-next').className = 'btn-next';
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 30;
+  document.getElementById('timer-badge').innerHTML = `<i class="ti ti-clock" aria-hidden="true"></i> ${timeLeft}s`;
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timer-badge').innerHTML = `<i class="ti ti-clock" aria-hidden="true"></i> ${timeLeft}s`;
+    if (timeLeft <= 0) { clearInterval(timer); if (!answered) timeOut(); }
+  }, 1000);
+}
+
+function timeOut() {
+  answered = true;
+  const q = shuffled[current];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((b, i) => { b.disabled = true; if (i === currentAns) b.classList.add('reveal'); });
+  streak = 0;
+  document.getElementById('streak').innerHTML = `${streak} <i class="ti ti-flame" aria-hidden="true" style="font-size:18px"></i>`;
+  showFeedback(false, '⏱ Tiempo agotado. ' + q.exp);
+  document.getElementById('btn-next').className = 'btn-next show';
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timer);
+  const q = shuffled[current];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  if (idx === currentAns) {
+    btns[idx].classList.add('correct');
+    const points = Math.max(10, timeLeft * 5);
+    score += points;
+    correct++;
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+    document.getElementById('score').textContent = score;
+    document.getElementById('correct-count').textContent = correct;
+    document.getElementById('streak').innerHTML = `${streak} <i class="ti ti-flame" aria-hidden="true" style="font-size:18px"></i>`;
+    showFeedback(true, '✓ Correcto! +' + points + ' pts. ' + q.exp);
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[currentAns].classList.add('reveal');
+    streak = 0;
+    document.getElementById('streak').innerHTML = `${streak} <i class="ti ti-flame" aria-hidden="true" style="font-size:18px"></i>`;
+    showFeedback(false, '✗ Incorrecto. ' + q.exp);
+  }
+  document.getElementById('btn-next').className = 'btn-next show';
+}
+
+function showFeedback(ok, text) {
+  const fb = document.getElementById('feedback');
+  fb.className = `feedback show ${ok ? 'correct' : 'wrong'}`;
+  fb.textContent = text;
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= shuffled.length) { showResults(); return; }
+  renderQuestion();
+}
+
+function showResults() {
+  showScreen('screen-results');
+  const pct = Math.round((correct / shuffled.length) * 100);
+  let icon, title, sub;
+  if (pct >= 90) { icon = '🏆'; title = '¡Excelente! Dominas las 7 actividades'; sub = 'Conoces muy bien las funciones del Ingeniero Industrial.'; }
+  else if (pct >= 70) { icon = '👍'; title = 'Buen trabajo'; sub = 'Tienes una base sólida. Repasa los temas donde fallaste.'; }
+  else if (pct >= 50) { icon = '📚'; title = 'Sigue estudiando'; sub = 'Revisa las actividades de distribución de planta, cadena de suministros y producción.'; }
+  else { icon = '💡'; title = 'Necesitas repasar'; sub = 'Te recomendamos releer las notas de la T1U2 sobre actividades del IE.'; }
+  document.getElementById('res-icon').textContent = icon;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-sub').textContent = sub + ` (${pct}% de respuestas correctas)`;
+  document.getElementById('res-score').textContent = score;
+  document.getElementById('res-correct').textContent = `${correct}/${shuffled.length}`;
+  document.getElementById('res-streak').textContent = maxStreak;
+}
+</script>
+
+</body>
+</html>
