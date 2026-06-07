@@ -112,6 +112,7 @@ El estudiante reconocerá el origen y evolución de la industrialización de la 
 |-----------|--------|--------|
 | Juego de Trivia — Historia de la Ingeniería Industrial | Unidad I | [▶ Jugar](https://htmlpreview.github.io/?https://github.com/SolKacil/ingenieria-industrial/blob/master/actividades-interactivas/juego_trivia_unidad1_ingenieria_industrial.html) |
 | Juego de Trivia — Actividades de la Ingeniería Industrial | Unidad II | [▶ Jugar](https://htmlpreview.github.io/?https://github.com/SolKacil/ingenieria-industrial/blob/master/actividades-interactivas/juego_trivia_unidad1_t2_actividades_ie.html) |
+| NanoCluster Quest — Clústeres Industriales en México | Unidad III | [▶ Jugar](https://htmlpreview.github.io/?https://github.com/SolKacil/ingenieria-industrial/blob/master/actividades-interactivas/nanocluster-quest.html) |
 
 ---
 
