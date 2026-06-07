@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NanoCluster Quest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Exo+2:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070c18;
+      --surface: #0f1726;
+      --surface2: #172038;
+      --surface3: #1f2d4a;
+      --accent: #00d4aa;
+      --accent2: #3b82f6;
+      --accent3: #a855f7;
+      --text: #e2e8f0;
+      --text-muted: #7a8fa8;
+      --correct: #10b981;
+      --wrong: #ef4444;
+      --gold: #f59e0b;
+      --border: rgba(0,212,170,0.18);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .hex-bg {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 2 L54 17 L54 49 L28 64 L2 49 L2 17 Z' fill='none' stroke='%2300d4aa' stroke-width='0.5' opacity='0.25'/%3E%3Cpath d='M28 66 L54 81 L54 113 L28 128 L2 113 L2 81 Z' fill='none' stroke='%2300d4aa' stroke-width='0.5' opacity='0.25'/%3E%3C/svg%3E");
+      opacity: 0.07;
+    }
+    .glow-top {
+      position: fixed; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 600px;
+      background: radial-gradient(ellipse at center, rgba(0,212,170,0.07) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    .glow-bottom {
+      position: fixed; bottom: -200px; right: -100px;
+      width: 600px; height: 600px;
+      background: radial-gradient(ellipse at center, rgba(59,130,246,0.05) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    .wrapper {
+      position: relative; z-index: 1;
+      max-width: 820px; margin: 0 auto;
+      padding: 0 20px 60px; min-height: 100vh;
+    }
+    /* HEADER */
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 28px;
+    }
+    .logo {
+      font-family: 'Orbitron', monospace; font-size: 13px;
+      letter-spacing: 3px; color: var(--accent);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .top-right { display: flex; align-items: center; gap: 12px; }
+    .xp-pill {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 4px 14px;
+      font-family: 'Orbitron', monospace; font-size: 14px;
+      color: var(--gold); font-weight: 600; min-width: 60px; text-align: center;
+      transition: all 0.3s;
+    }
+    .xp-tag { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 2px; color: var(--text-muted); }
+    .sound-btn {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 12px; cursor: pointer;
+      font-size: 16px; transition: all 0.2s; line-height: 1;
+    }
+    .sound-btn:hover { border-color: var(--accent); background: rgba(0,212,170,0.08); }
+    /* SCREENS */
+    .screen { display: none; animation: fadeUp 0.45s ease; }
+    .screen.active { display: block; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    /* MISSION DOTS */
+    .mission-dots { display: flex; gap: 6px; margin-bottom: 28px; flex-wrap: wrap; }
+    .m-dot {
+      flex: 1; min-width: 20px; height: 3px; border-radius: 2px;
+      background: var(--surface3); transition: background 0.4s, box-shadow 0.4s;
+    }
+    .m-dot.done   { background: var(--accent); }
+    .m-dot.active { background: var(--accent2); box-shadow: 0 0 8px rgba(59,130,246,0.5); animation: dotPulse 1.5s ease-in-out infinite; }
+    @keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    /* INTRO */
+    .intro-center { text-align: center; padding: 50px 0 30px; }
+    .char-orb {
+      width: 130px; height: 130px; margin: 0 auto 28px;
+      position: relative; display: flex; align-items: center; justify-content: center;
+    }
+    .orb-ring  { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--accent); animation: orbPulse 2.5s ease-in-out infinite; }
+    .orb-ring2 { position: absolute; inset: -10px; border-radius: 50%; border: 1px solid rgba(0,212,170,0.15); animation: orbPulse 2.5s ease-in-out infinite reverse; }
+    .orb-ring3 { position: absolute; inset: -22px; border-radius: 50%; border: 1px solid rgba(0,212,170,0.07); }
+    .orb-inner {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: var(--surface); display: flex; align-items: center;
+      justify-content: center; font-size: 52px; z-index: 1;
+    }
+    @keyframes orbPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(0,212,170,0.2); }
+      50%      { box-shadow: 0 0 20px 8px rgba(0,212,170,0.08); }
+    }
+    .game-title {
+      font-family: 'Orbitron', monospace; font-size: clamp(26px, 5vw, 40px);
+      font-weight: 900; color: var(--accent); letter-spacing: 4px; line-height: 1.15;
+      text-shadow: 0 0 40px rgba(0,212,170,0.35); margin-bottom: 10px;
+    }
+    .game-subtitle { font-size: 15px; color: var(--text-muted); font-style: italic; margin-bottom: 40px; }
+    .stat-row {
+      display: flex; gap: 16px; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 44px;
+    }
+    .stat-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px 24px; min-width: 110px; text-align: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .stat-box:hover { border-color: rgba(0,212,170,0.4); box-shadow: 0 4px 20px rgba(0,212,170,0.08); }
+    .stat-icon { font-size: 26px; margin-bottom: 8px; }
+    .stat-label { font-size: 10px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .stat-val { font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 600; color: var(--accent); }
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: none; border-radius: 8px;
+      font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-lg { padding: 16px 44px; font-size: 13px; }
+    .btn-primary { background: var(--accent); color: #060d18; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,212,170,0.35); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 13px 32px; }
+    .btn-outline:hover { background: rgba(0,212,170,0.08); box-shadow: 0 4px 16px rgba(0,212,170,0.15); }
+    /* DIALOG */
+    .dialog-box {
+      display: flex; gap: 16px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 20px; margin-bottom: 24px;
+    }
+    .dialog-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--surface2); border: 2px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; flex-shrink: 0;
+    }
+    .dialog-body { flex: 1; }
+    .dialog-name { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent); margin-bottom: 6px; }
+    .dialog-msg { font-size: 14.5px; line-height: 1.65; color: var(--text); }
+    /* READING */
+    .mission-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 24px; }
+    .mission-card-head {
+      padding: 16px 24px; background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mission-num { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 3px; color: var(--accent2); }
+    .mission-name { font-size: 17px; font-weight: 600; margin-top: 2px; }
+    .mission-reward {
+      font-family: 'Orbitron', monospace; font-size: 12px; color: var(--gold);
+      background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25);
+      padding: 4px 12px; border-radius: 20px;
+    }
+    .mission-body { padding: 28px; }
+    .mission-text { font-size: 15px; line-height: 1.85; color: var(--text); }
+    .mission-text p { margin-bottom: 18px; }
+    .mission-text p:last-child { margin-bottom: 0; }
+    .mission-text strong { color: var(--accent); font-weight: 600; }
+    .btn-row { display: flex; justify-content: flex-end; margin-top: 8px; }
+    /* QUESTIONS */
+    .q-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .q-counter { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 2px; color: var(--text-muted); }
+    .q-progress-bar { width: 120px; height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+    .q-progress-fill { height: 100%; background: var(--accent2); border-radius: 2px; transition: width 0.4s ease; }
+    .question-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px; margin-bottom: 20px; }
+    .question-sentence { font-size: 17px; line-height: 1.8; color: var(--text); margin-bottom: 28px; }
+    .blank-slot {
+      display: inline-block; background: var(--surface2);
+      border: 2px dashed rgba(0,212,170,0.5); border-radius: 8px;
+      padding: 2px 18px; font-family: 'Orbitron', monospace;
+      font-size: 13px; letter-spacing: 3px; color: rgba(0,212,170,0.6);
+      min-width: 110px; text-align: center; vertical-align: middle; transition: all 0.35s;
+    }
+    .blank-slot.correct-fill { background: rgba(16,185,129,0.12); border-color: var(--correct); border-style: solid; color: var(--correct); letter-spacing: 1px; }
+    .blank-slot.wrong-fill { background: rgba(239,68,68,0.12); border-color: var(--wrong); border-style: solid; color: #fca5a5; letter-spacing: 1px; }
+    .options-grid { display: flex; flex-direction: column; gap: 10px; }
+    .opt-btn {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--surface2); border: 1px solid rgba(0,212,170,0.12);
+      border-radius: 12px; padding: 14px 20px; cursor: pointer;
+      transition: all 0.2s; font-family: 'Exo 2', sans-serif;
+      font-size: 15px; color: var(--text); text-align: left;
+    }
+    .opt-btn:hover:not(:disabled) { border-color: rgba(0,212,170,0.4); background: rgba(0,212,170,0.06); transform: translateX(5px); }
+    .opt-btn:disabled { cursor: not-allowed; }
+    .opt-btn.is-correct { border-color: var(--correct); background: rgba(16,185,129,0.1); color: #6ee7b7; }
+    .opt-btn.is-wrong { border-color: var(--wrong); background: rgba(239,68,68,0.1); color: #fca5a5; }
+    .opt-letter {
+      width: 30px; height: 30px; border-radius: 7px;
+      background: rgba(0,212,170,0.08); border: 1px solid rgba(0,212,170,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 600;
+      color: var(--accent); flex-shrink: 0; transition: all 0.2s;
+    }
+    .is-correct .opt-letter { background: rgba(16,185,129,0.2); border-color: var(--correct); color: var(--correct); }
+    .is-wrong .opt-letter { background: rgba(239,68,68,0.2); border-color: var(--wrong); color: var(--wrong); }
+    .feedback-box {
+      display: none; align-items: flex-start; gap: 10px;
+      border-radius: 12px; padding: 14px 18px; margin-top: 18px;
+      font-size: 14px; line-height: 1.6; animation: slideUp 0.3s ease;
+    }
+    .feedback-box.show { display: flex; }
+    .feedback-box.fb-ok { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.28); color: #a7f3d0; }
+    .feedback-box.fb-bad { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.28); color: #fecaca; }
+    .fb-icon { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+    @keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    #nextBtn { display: none; }
+    /* MISSION COMPLETE */
+    .mission-complete { text-align: center; padding: 70px 20px; }
+    .complete-badge {
+      width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--accent);
+      background: var(--surface); display: flex; align-items: center; justify-content: center;
+      font-size: 52px; margin: 0 auto 28px; box-shadow: 0 0 30px rgba(0,212,170,0.2);
+      animation: orbPulse 2s ease-in-out infinite;
+    }
+    .complete-title { font-family: 'Orbitron', monospace; font-size: 22px; color: var(--accent); letter-spacing: 3px; margin-bottom: 8px; }
+    .complete-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 6px; }
+    .xp-gained { font-family: 'Orbitron', monospace; font-size: 20px; color: var(--gold); margin-bottom: 36px; }
+    /* FINAL */
+    .final-screen { text-align: center; padding: 40px 20px; }
+    .trophy-anim { font-size: 90px; margin-bottom: 20px; display: inline-block; animation: trophyBounce 1.2s ease-in-out infinite alternate; }
+    @keyframes trophyBounce { from{transform:translateY(0) rotate(-3deg)} to{transform:translateY(-14px) rotate(3deg)} }
+    .final-title { font-family: 'Orbitron', monospace; font-size: clamp(20px, 4vw, 28px); color: var(--gold); letter-spacing: 3px; margin-bottom: 8px; }
+    .final-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 36px; }
+    .results-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+    .result-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px 28px; min-width: 120px; }
+    .result-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+    .result-val { font-family: 'Orbitron', monospace; font-size: 26px; font-weight: 600; }
+    .rv-green { color: var(--correct); } .rv-gold { color: var(--gold); } .rv-blue { color: var(--accent2); }
+    .final-msg { max-width: 520px; margin: 0 auto 36px; font-size: 15px; color: var(--text-muted); line-height: 1.7; }
+    /* XP pop animation */
+    .xp-pop { animation: xpPop 0.4s ease; }
+    @keyframes xpPop { 0%{transform:scale(1)} 50%{transform:scale(1.4)} 100%{transform:scale(1)} }
+    @media (max-width: 520px) {
+      .stat-row { gap: 10px; } .stat-box { padding: 14px 16px; min-width: 90px; }
+      .mission-body { padding: 20px 16px; } .question-card { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hex-bg"></div>
+<div class="glow-top"></div>
+<div class="glow-bottom"></div>
+
+<div class="wrapper">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="logo">
+      <svg width="20" height="24" viewBox="0 0 24 28" fill="none">
+        <path d="M12 1 L23 7 L23 21 L12 27 L1 21 L1 7 Z" stroke="#00d4aa" stroke-width="1.5" fill="none"/>
+        <path d="M12 8 L18 11.5 L18 18.5 L12 22 L6 18.5 L6 11.5 Z" fill="rgba(0,212,170,0.15)" stroke="#00d4aa" stroke-width="1"/>
+      </svg>
+      NANOCLUSTER QUEST
+    </div>
+    <div class="top-right">
+      <button class="sound-btn" id="soundBtn" onclick="toggleSound()" title="Activar/desactivar sonido">🔊</button>
+      <span class="xp-tag">XP</span>
+      <div class="xp-pill" id="xpDisplay">0</div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div id="scIntro" class="screen active">
+    <div class="intro-center">
+      <div class="char-orb">
+        <div class="orb-ring3"></div><div class="orb-ring2"></div><div class="orb-ring"></div>
+        <div class="orb-inner">🔬</div>
+      </div>
+      <h1 class="game-title">NANOCLUSTER<br>QUEST</h1>
+      <p class="game-subtitle">Explora los clústeres tecnológicos de México</p>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-icon">🗺️</div><div class="stat-label">Misiones</div><div class="stat-val">6</div></div>
+        <div class="stat-box"><div class="stat-icon">❓</div><div class="stat-label">Preguntas</div><div class="stat-val">24</div></div>
+        <div class="stat-box"><div class="stat-icon">⭐</div><div class="stat-label">XP máx.</div><div class="stat-val">240</div></div>
+      </div>
+      <button class="btn btn-primary btn-lg" onclick="startGame()">▶&nbsp; INICIAR MISIÓN</button>
+    </div>
+  </div>
+
+  <!-- READING -->
+  <div id="scReading" class="screen">
+    <div class="mission-dots" id="dots1"></div>
+    <div class="dialog-box">
+      <div class="dialog-avatar">🔬</div>
+      <div class="dialog-body">
+        <div class="dialog-name">DR. NANO — INVESTIGADOR JEFE</div>
+        <div class="dialog-msg" id="dialogMsg"></div>
+      </div>
+    </div>
+    <div class="mission-card">
+      <div class="mission-card-head">
+        <div>
+          <div class="mission-num" id="rdNum"></div>
+          <div class="mission-name" id="rdName"></div>
+        </div>
+        <div class="mission-reward">⭐ +40 XP</div>
+      </div>
+      <div class="mission-body"><div class="mission-text" id="rdText"></div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="startQuestions()">RESPONDER PREGUNTAS &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="scQuestion" class="screen">
+    <div class="mission-dots" id="dots2"></div>
+    <div class="q-meta">
+      <div class="q-counter" id="qCounter"></div>
+      <div class="q-progress-bar"><div class="q-progress-fill" id="qProgressFill"></div></div>
+    </div>
+    <div class="question-card">
+      <div class="question-sentence" id="qSentence"></div>
+      <div class="options-grid" id="qOptions"></div>
+      <div class="feedback-box" id="fbBox">
+        <span class="fb-icon" id="fbIcon"></span>
+        <span id="fbText"></span>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" id="nextBtn" onclick="nextQuestion()">SIGUIENTE &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- MISSION COMPLETE -->
+  <div id="scMissionDone" class="screen">
+    <div class="mission-complete">
+      <div class="complete-badge" id="doneBadge"></div>
+      <h2 class="complete-title">¡MISIÓN COMPLETADA!</h2>
+      <p class="complete-sub" id="doneMissionName"></p>
+      <div class="xp-gained" id="doneXP"></div>
+      <button class="btn btn-primary btn-lg" onclick="nextMission()">SIGUIENTE MISIÓN &nbsp;→</button>
+    </div>
+  </div>
+
+  <!-- FINAL -->
+  <div id="scFinal" class="screen">
+    <div class="final-screen">
+      <div class="trophy-anim">🏆</div>
+      <h2 class="final-title">¡MISIÓN CUMPLIDA!</h2>
+      <p class="final-sub">Has completado todas las misiones de NanoCluster Quest</p>
+      <div class="results-row">
+        <div class="result-box"><div class="result-label">Correctas</div><div class="result-val rv-green" id="rCorrect"></div></div>
+        <div class="result-box"><div class="result-label">XP Total</div><div class="result-val rv-gold" id="rXP"></div></div>
+        <div class="result-box"><div class="result-label">Calificación</div><div class="result-val rv-blue" id="rGrade"></div></div>
+      </div>
+      <p class="final-msg" id="rMsg"></p>
+      <button class="btn btn-primary btn-lg" onclick="restartGame()">⟳ &nbsp;JUGAR DE NUEVO</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ================================================================
+   SOUND SYSTEM  (Web Audio API)
+   ================================================================ */
+let audioCtx = null;
+let soundOn = true;
+
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function tone(freq, dur, type = 'sine', vol = 0.28, delay = 0) {
+  if (!soundOn || !audioCtx) return;
+  const osc  = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime + delay);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + dur);
+  osc.start(audioCtx.currentTime + delay);
+  osc.stop(audioCtx.currentTime + delay + dur);
+}
+
+function playStart() {
+  initAudio();
+  [392, 494, 588, 784].forEach((f, i) => tone(f, 0.18, 'triangle', 0.25, i * 0.11));
+}
+
+function playCorrect() {
+  initAudio();
+  tone(523, 0.12, 'triangle', 0.28, 0);
+  tone(659, 0.12, 'triangle', 0.28, 0.1);
+  tone(784, 0.22, 'triangle', 0.28, 0.2);
+}
+
+function playWrong() {
+  initAudio();
+  tone(330, 0.10, 'sawtooth', 0.18, 0);
+  tone(220, 0.20, 'sawtooth', 0.14, 0.12);
+}
+
+function playMissionDone() {
+  initAudio();
+  [523, 659, 784, 1047, 784].forEach((f, i) => tone(f, 0.18, 'triangle', 0.28, i * 0.13));
+}
+
+function playGameDone() {
+  initAudio();
+  [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.22, 'triangle', 0.28, i * 0.15));
+}
+
+function playXPTick() {
+  initAudio();
+  tone(1047, 0.06, 'triangle', 0.15, 0);
+}
+
+function toggleSound() {
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+}
+
+/* ================================================================
+   GAME DATA
+   ================================================================ */
+const MISSIONS = [
+  /* ─────────────── MISIÓN 01 ─────────────── */
+  {
+    num  : "MISIÓN 01",
+    name : "¿Qué es un Clúster Tecnológico?",
+    emoji: "🌐",
+    dialog: "¡Bienvenido/a, investigador/a junior! Para tu primera misión debes comprender qué son los clústeres tecnológicos y cómo operan. Lee el briefing con atención antes de responder.",
+    text : `<p>Un <strong>clúster tecnológico</strong> es una concentración geográfica de empresas, instituciones académicas y organismos de investigación vinculados a una industria específica. Su objetivo es generar sinergias que impulsen la innovación, la competitividad y el desarrollo económico de una región.</p>
+<p>Los clústeres funcionan como <strong>ecosistemas</strong> donde la colaboración facilita la transferencia de conocimiento, la atracción de inversión y la formación de capital humano especializado. A diferencia de una empresa aislada, el clúster se beneficia de la proximidad geográfica y la red de relaciones entre sus actores.</p>
+<p>Existen clústeres <strong>naturales o espontáneos</strong>, que surgen de la evolución histórica de una región, y clústeres <strong>forzados o inducidos</strong>, que resultan de la política industrial de un país. También hay clústeres naturales que cuentan con agentes promotores, como las asociaciones civiles que impulsan su desarrollo. En México, organismos como la <strong>SECIHTI</strong> (Secretaría de Ciencia, Humanidades, Tecnología e Innovación), la Secretaría de Economía y los gobiernos estatales han promovido su creación y consolidación.</p>`,
+    questions: [
+      {
+        pre : "Un clúster tecnológico es una concentración",
+        post: "de empresas e instituciones vinculadas a una industria específica.",
+        opts: ["Virtual", "Geográfica", "Temporal"],
+        ans : 1,
+        fb  : "¡Correcto! La proximidad geográfica es el rasgo definitorio de un clúster: permite interacción directa, transferencia de conocimiento y desarrollo de confianza entre actores."
+      },
+      {
+        pre : "Los clústeres tecnológicos generan",
+        post: "que impulsan la innovación y la competitividad de una región.",
+        opts: ["Conflictos", "Barreras", "Sinergias"],
+        ans : 2,
+        fb  : "¡Correcto! Las sinergias emergen de la colaboración: el conjunto produce más que la simple suma de sus partes individuales."
+      },
+      {
+        pre : "El organismo rector de ciencia y tecnología en México, antes llamado CONACYT y luego CONAHCYT, actualmente se denomina",
+        post: ".",
+        opts: ["CONACYT", "SECIHTI", "SECOFI"],
+        ans : 1,
+        fb  : "¡Correcto! La SECIHTI (Secretaría de Ciencia, Humanidades, Tecnología e Innovación) es la denominación actual desde 2024, reflejando un enfoque más amplio que incluye humanidades."
+      },
+      {
+        pre : "Los clústeres que surgen de manera espontánea a partir de la evolución histórica de una región se denominan clústeres",
+        post: ".",
+        opts: ["Inducidos", "Virtuales", "Naturales"],
+        ans : 2,
+        fb  : "¡Correcto! Los clústeres naturales se forman sin intervención directa del Estado, como consecuencia del desarrollo orgánico de una región. Los inducidos, en cambio, resultan de la política industrial."
+      }
+    ]
+  },
+
+  /* ─────────────── MISIÓN 02 ─────────────── */
+  {
+    num  : "MISIÓN 02",
+    name : "Clústeres Tecnológicos en México",
+    emoji: "🗺️",
+    dialog: "¡Excelente resultado! Ahora sobrevolemos México para identificar las regiones donde se concentra el desarrollo tecnológico del país. Cada zona tiene su propia especialización.",
+    text : `<p>México cuenta con varios clústeres tecnológicos de relevancia internacional. <strong>Guadalajara, Jalisco</strong>, es conocida como el «Silicon Valley Mexicano» por albergar empresas transnacionales como Intel, IBM, HP y Oracle, respaldadas por una sólida red de universidades que proveen talento especializado.</p>
+<p><strong>Monterrey, Nuevo León</strong>, destaca por su estrecho vínculo entre industria y academia —el ITESM y la UANL son referentes clave— y por sus clústeres de manufactura avanzada con proyección global. La frontera norte (Tijuana, Mexicali, Ciudad Juárez) concentra la manufactura electrónica de alta tecnología, con plantas maquiladoras que exportan a todo el mundo.</p>
+<p><strong>Querétaro</strong> ha emergido como polo aeroespacial con más de 300 empresas del sector. En el ámbito automotriz, el primer <strong>Clúster Automotriz</strong> de México inició operaciones en <strong>Nuevo León en 2007</strong>; actualmente la red nacional agrupa a <strong>nueve clústeres</strong> en estados como Guanajuato, Estado de México, Puebla, Tlaxcala, Coahuila, Chihuahua, Querétaro, Jalisco y San Luis Potosí. Estos clústeres representan las mayores oportunidades de inserción laboral para ingenieros especializados.</p>`,
+    questions: [
+      {
+        pre : "Guadalajara, Jalisco, es conocida como el",
+        post: "Mexicano por su alta concentración de empresas tecnológicas transnacionales.",
+        opts: ["Hollywood", "Silicon Valley", "Wall Street"],
+        ans : 1,
+        fb  : "¡Correcto! Guadalajara lleva décadas consolidándose como el Silicon Valley Mexicano, con presencia de Intel, IBM, HP, Oracle y cientos de empresas de tecnología."
+      },
+      {
+        pre : "Monterrey destaca por el vínculo entre industria y",
+        post: ", con el ITESM y la UANL como instituciones clave del ecosistema.",
+        opts: ["Turismo", "Agricultura", "Academia"],
+        ans : 2,
+        fb  : "¡Correcto! La vinculación universidad-empresa en Monterrey es modelo a seguir: las instituciones forman el capital humano que los clústeres industriales demandan."
+      },
+      {
+        pre : "Querétaro ha emergido como polo",
+        post: "con más de 300 empresas establecidas en la región.",
+        opts: ["Aeroespacial", "Textil", "Agroindustrial"],
+        ans : 0,
+        fb  : "¡Correcto! Querétaro alberga el clúster aeroespacial más importante de México, con empresas como Bombardier, Safran y General Electric."
+      },
+      {
+        pre : "El primer Clúster Automotriz de México inició operaciones en 2007 en el estado de",
+        post: ", dando origen a una red que hoy agrupa a nueve clústeres.",
+        opts: ["Guanajuato", "Jalisco", "Nuevo León"],
+        ans : 2,
+        fb  : "¡Correcto! El Clúster Automotriz de Nuevo León fue pionero en 2007. Actualmente existen nueve clústeres automotrices que articulan empresas ancla, proveedores y academia."
+      }
+    ]
+  },
+
+  /* ─────────────── MISIÓN 03 ─────────────── */
+  {
+    num  : "MISIÓN 03",
+    name : "Nanotecnología en México",
+    emoji: "⚛️",
+    dialog: "¡Hora de entrar al nivel molecular! México tiene centros de investigación en nanotecnología a la vanguardia en América Latina. Identifica sus ubicaciones, capacidades y el ecosistema empresarial.",
+    text : `<p>México ha desarrollado capacidades significativas en nanotecnología a través de centros especializados. El <strong>CIMAV</strong> (Centro de Investigación en Materiales Avanzados), con sede en Chihuahua, es líder en síntesis de nanomateriales y caracterización nanométrica. Su laboratorio <strong>LINAN</strong> en Monterrey es uno de los más equipados de América Latina.</p>
+<p>El <strong>CINVESTAV</strong> cuenta con laboratorios en Ciudad de México, Querétaro y Mérida, especializados en nanoelectrónica y nanobiotecnología. El <strong>IPICyT</strong> en San Luis Potosí realiza investigación en nanotecnología aplicada a energía y medio ambiente. La UNAM opera el <strong>CNyN</strong> en Ensenada, Baja California, referente nacional en nanociencias.</p>
+<p>Desde 2001, el gobierno mexicano reconoce a la nanotecnología como área estratégica. Un inventario académico realizado entre 2010 y 2012 identificó <strong>101 empresas</strong> trabajando con nanotecnología en el país, concentradas principalmente en <strong>Nuevo León</strong> (39 empresas) y en la <strong>Ciudad de México</strong> (31 empresas). El sector con mayor número de empresas fue el <strong>químico</strong>, seguido por el eléctrico y el de tratamiento de agua.</p>`,
+    questions: [
+      {
+        pre : "El CIMAV, líder en síntesis de nanomateriales en México, tiene su sede principal en el estado de",
+        post: ".",
+        opts: ["Jalisco", "Chihuahua", "Veracruz"],
+        ans : 1,
+        fb  : "¡Correcto! El CIMAV en Chihuahua es uno de los centros de investigación en materiales más importantes del país, y su LINAN en Monterrey es extensión clave del ecosistema nano."
+      },
+      {
+        pre : "El CNyN de la UNAM, dedicado a nanociencias y nanotecnología, se localiza en Ensenada,",
+        post: ".",
+        opts: ["Sonora", "Sinaloa", "Baja California"],
+        ans : 2,
+        fb  : "¡Correcto! El Centro de Nanociencias y Nanotecnología de la UNAM en Ensenada es referente nacional en investigación básica y aplicada a escala nanométrica."
+      },
+      {
+        pre : "Un inventario académico (2010-2012) identificó",
+        post: "empresas trabajando con nanotecnología en México.",
+        opts: ["47", "101", "250"],
+        ans : 1,
+        fb  : "¡Correcto! El inventario publicado en la revista Estudios Sociales identificó 101 empresas nanotecnológicas en México, el primer registro sistemático de este tipo en el país."
+      },
+      {
+        pre : "El sector con mayor número de empresas nanotecnológicas en México fue el",
+        post: ", con 17 empresas registradas en el inventario.",
+        opts: ["Farmacéutico", "Automotriz", "Químico"],
+        ans : 2,
+        fb  : "¡Correcto! El sector químico lideró con 17 empresas, seguido por el eléctrico, el de tratamiento de agua y el de plásticos y hule, cada uno con ocho empresas."
+      }
+    ]
+  },
+
+  /* ─────────────── MISIÓN 04 ─────────────── */
+  {
+    num  : "MISIÓN 04",
+    name : "Aplicaciones e Impacto Industrial",
+    emoji: "🚀",
+    dialog: "¡La nanotecnología no solo vive en los laboratorios: transforma industrias enteras! Analiza su impacto real y tu rol como futuro/a ingeniero/a en estos ecosistemas.",
+    text : `<p>Los clústeres de nanotecnología generan investigación aplicada en sectores estratégicos. En <strong>salud</strong>, se desarrollan sistemas de liberación controlada de fármacos, nanopartículas para diagnóstico por imagen y materiales biocompatibles para implantes médicos. En <strong>energía</strong>, los nanomateriales mejoran la eficiencia de celdas solares y baterías de nueva generación.</p>
+<p>La industria <strong>manufacturera</strong> se beneficia de recubrimientos nanoparticulados que aumentan la dureza, resistencia y vida útil de componentes industriales. En el sector <strong>ambiental</strong>, los nanomateriales se aplican en purificación de agua y remediación de suelos contaminados. La electrónica utiliza nanotecnología en semiconductores y dispositivos de almacenamiento de datos.</p>
+<p>En la cadena de valor de la nanotecnología existen cuatro niveles: <strong>nanomateriales</strong> (materias primas a escala nano), <strong>nanointermedios</strong> (productos que incorporan nanomateriales), <strong>productos nano-habilitados</strong> (bienes de consumo final) y <strong>nanoherramientas</strong> (equipos de visualización y manipulación). La mayoría de las empresas mexicanas se ubican en el nivel de productos nano-habilitados, como electrodomésticos, electrónica y equipo automotriz.</p>`,
+    questions: [
+      {
+        pre : "En el área de salud, la nanotecnología permite desarrollar sistemas de",
+        post: "controlada de fármacos y nanopartículas para diagnóstico por imagen.",
+        opts: ["Importación", "Producción", "Liberación"],
+        ans : 2,
+        fb  : "¡Correcto! Los sistemas de liberación controlada (drug delivery systems) permiten tratar enfermedades con mayor precisión, reduciendo efectos secundarios y mejorando la efectividad."
+      },
+      {
+        pre : "Los recubrimientos nanoparticulados aumentan la dureza, resistencia y",
+        post: "de componentes en la industria manufacturera.",
+        opts: ["El color", "La vida útil", "El peso"],
+        ans : 1,
+        fb  : "¡Correcto! Los recubrimientos nano pueden multiplicar la vida útil de piezas industriales, reduciendo costos de mantenimiento y mejorando la eficiencia productiva."
+      },
+      {
+        pre : "En la cadena de valor de la nanotecnología, los automóviles, aviones y computadoras se clasifican como",
+        post: ", el nivel más próximo al consumidor final.",
+        opts: ["Nanomateriales", "Nanointermedios", "Productos nano-habilitados"],
+        ans : 2,
+        fb  : "¡Correcto! Los productos nano-habilitados son bienes de consumo final que incorporan componentes o materiales nanotecnológicos. Son el nivel más abundante en el mercado mexicano."
+      },
+      {
+        pre : "El principal mercado laboral para los ingenieros en nanotecnología son los",
+        post: ", donde academia y empresa se vinculan para proyectos de impacto real.",
+        opts: ["Clústeres tecnológicos", "Museos de ciencia", "Centros comerciales"],
+        ans : 0,
+        fb  : "¡Correcto! Los clústeres nanotecnológicos son el destino natural para egresados de ingeniería en nanotecnología, donde aplican su formación especializada en entornos de alta innovación."
+      }
+    ]
+  },
+
+  /* ─────────────── MISIÓN 05 ─────────────── */
+  {
+    num  : "MISIÓN 05",
+    name : "Industria 4.0 y Manufactura Inteligente",
+    emoji: "🤖",
+    dialog: "¡Nueva misión de alta tecnología! La Industria 4.0 está transformando la manufactura global. Los clústeres industriales de México deben adoptarla para mantenerse competitivos. ¡Aprende sus tecnologías clave!",
+    text : `<p>La <strong>Industria 4.0</strong> es un término acuñado en <strong>Alemania</strong> para identificar la cuarta revolución industrial, donde las tecnologías de la información y comunicación (TIC) tienen un papel predominante en la producción. La primera revolución fue impulsada por la máquina de vapor, la segunda por la energía eléctrica, la tercera por la computación y la electrónica (1970s), y la cuarta borra los límites entre lo físico, lo digital y lo biológico.</p>
+<p>Las tecnologías que sostienen la Industria 4.0 incluyen: los <strong>sistemas ciberfísicos</strong> (máquinas interconectadas que usan inteligencia artificial), el <strong>Internet de las Cosas</strong> (IoT), que permite la comunicación máquina-máquina en tiempo real; el <strong>Big Data</strong> para análisis de grandes volúmenes de datos; la <strong>computación en la nube</strong>; y la <strong>manufactura aditiva</strong> (impresión 3D), que permite fabricar piezas únicas capa por capa. La primera patente de manufactura aditiva fue otorgada en 1986.</p>
+<p>En la manufactura también destacan la <strong>realidad aumentada</strong> para capacitación y planeación, y los <strong>robots cognitivos</strong> (Cobots) que interactúan con humanos en la línea de producción. En México, las asociaciones civiles conocidas como <strong>Clústeres Automotrices</strong> promueven estas tecnologías entre sus miembros, especialmente las pequeñas y medianas empresas proveedoras, mediante el modelo de <strong>triple hélice</strong> que integra gobierno, industria y academia.</p>`,
+    questions: [
+      {
+        pre : "El término Industria 4.0 fue acuñado en",
+        post: "para identificar la cuarta revolución industrial donde las TIC tienen un rol predominante.",
+        opts: ["Japón", "Alemania", "Estados Unidos"],
+        ans : 1,
+        fb  : "¡Correcto! Alemania acuñó el término en el contexto de su política industrial de alta tecnología. La cuarta revolución converge tecnologías que borran los límites entre lo físico, lo digital y lo biológico."
+      },
+      {
+        pre : "El",
+        post: "permite la comunicación entre sistemas ciberfísicos y dispositivos en tiempo real.",
+        opts: ["Big Data", "Internet de las Cosas", "Blockchain"],
+        ans : 1,
+        fb  : "¡Correcto! El Internet de las Cosas (IoT) conecta máquinas, sensores y dispositivos, permitiendo la toma de decisiones automatizada e inmediata en la planta de manufactura."
+      },
+      {
+        pre : "La manufactura aditiva, también conocida como",
+        post: ", forma objetos tridimensionales capa por capa a partir de modelos digitales.",
+        opts: ["Robótica", "Realidad virtual", "Impresión 3D"],
+        ans : 2,
+        fb  : "¡Correcto! La manufactura aditiva o impresión 3D permite fabricar prototipos y piezas únicas reduciendo tiempo y costo. Su primera patente data de 1986 y se popularizó significativamente en la última década."
+      },
+      {
+        pre : "Los robots",
+        post: ", conocidos como Cobots, están siendo integrados a las líneas de producción para interactuar con humanos.",
+        opts: ["Hidráulicos", "Cognitivos", "Agrícolas"],
+        ans : 1,
+        fb  : "¡Correcto! Los robots cognitivos o Cobots (collaborative robots) pueden trabajar junto a operadores humanos con seguridad, ampliando las capacidades de automatización flexible en la manufactura."
+      }
+    ]
+  },
+
+  /* ─────────────── MISIÓN 06 ─────────────── */
+  {
+    num  : "MISIÓN 06",
+    name : "El PIIT y el Clúster Nano de Nuevo León",
+    emoji: "🏙️",
+    dialog: "¡Misión de élite, investigador/a! El Clúster Nanotecnológico de Nuevo León es el más avanzado de México. Descubre la estructura del PIIT, sus objetivos y los actores que lo integran.",
+    text : `<p>En la ciudad de Monterrey, Nuevo León, se ubica el <strong>Parque de Investigación e Innovación Tecnológica (PIIT)</strong>, construido en 175 acres con una inversión de 250 millones de dólares. Este parque forma parte del proyecto «Monterrey, Ciudad Internacional del Conocimiento» y busca potenciar la estructura de <strong>triple hélice</strong> —empresas, academia y gobierno— para impulsar la competitividad regional.</p>
+<p>Dentro del PIIT opera el <strong>Clúster de Nanotecnología de Nuevo León (CNNL)</strong>, que abrió sus puertas en <strong>junio de 2008</strong> con <strong>16 miembros</strong> fundadores. Para 2010 ya contaba con 28 integrantes, incluyendo centros de investigación como el <strong>CIMAV</strong> (que coordina el clúster), el <strong>CINVESTAV-IPN</strong>, el ITESM, la UANL, el CIQA y el CIDESI. También participan universidades extranjeras como la Universidad Estatal de Arizona y la Universidad de Texas-Austin.</p>
+<p>El CNNL agrupa a empresas como Nanomateriales S.A. de C.V., Whirlpool, Vitro, Cemex, Viakable y Owens Corning. Sus proyectos se enfocan en tres áreas: nanoestructuras para refuerzo en materiales metálicos, nanoestructuras para materiales poliméricos y <strong>recubrimientos nanoestructurados funcionales</strong>. En 2009 inauguró una incubadora de negocios nanotecnológicos con financiamiento de 61 millones de pesos, cuyo objetivo es llevar las innovaciones al mercado en escala industrial.</p>`,
+    questions: [
+      {
+        pre : "El Clúster de Nanotecnología de Nuevo León (CNNL) abrió sus puertas en junio de",
+        post: ", dentro del Parque de Investigación e Innovación Tecnológica (PIIT) de Monterrey.",
+        opts: ["2005", "2008", "2012"],
+        ans : 1,
+        fb  : "¡Correcto! El CNNL inició operaciones en junio de 2008 como parte del PIIT de Monterrey, con 16 miembros fundadores y el objetivo de convertir a Nuevo León en polo nanotecnológico de clase mundial."
+      },
+      {
+        pre : "El CNNL fue fundado con",
+        post: "miembros y creció hasta 28 integrantes en 2010, articulando centros de investigación, universidades y empresas.",
+        opts: ["8", "24", "16"],
+        ans : 2,
+        fb  : "¡Correcto! El CNNL inició con 16 miembros fundadores. La rápida expansión a 28 integrantes refleja el interés de empresas y centros académicos en participar en este ecosistema nanotecnológico."
+      },
+      {
+        pre : "El modelo de",
+        post: "vincula a empresas, academia y gobierno para impulsar el crecimiento económico a partir de la innovación tecnológica.",
+        opts: ["Doble hélice", "Triple hélice", "Cuádruple hélice"],
+        ans : 1,
+        fb  : "¡Correcto! El modelo de triple hélice articula a los tres actores clave del ecosistema de innovación. En el CNNL esta estructura se plasma en la colaboración entre el CIMAV, el gobierno de NL y empresas como Whirlpool, Cemex y Vitro."
+      },
+      {
+        pre : "El PIIT en Monterrey también aloja clústeres especializados en tecnología aeroespacial, biotecnología, software y tecnología",
+        post: ", consolidándolo como el ecosistema tecnológico más completo de México.",
+        opts: ["Agropecuaria", "Automotriz", "Textil"],
+        ans : 1,
+        fb  : "¡Correcto! El PIIT es un ecosistema de alta tecnología que integra múltiples clústeres especializados. La presencia conjunta de nanotecnología, aeroespacial, biotecnología, software y automotriz lo convierte en referente latinoamericano."
+      }
+    ]
+  }
+];
+
+/* ================================================================
+   STATE
+   ================================================================ */
+let curMission  = 0;
+let curQuestion = 0;
+let totalXP     = 0;
+let correctCnt  = 0;
+let missionXP   = 0;
+let answered    = false;
+const QS_PER_MISSION = 4;
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderDots(cid) {
+  document.getElementById(cid).innerHTML = MISSIONS.map((_, i) => {
+    let c = 'm-dot';
+    if (i < curMission) c += ' done';
+    else if (i === curMission) c += ' active';
+    return `<div class="${c}"></div>`;
+  }).join('');
+}
+
+function updateXP(gained = 0) {
+  const el = document.getElementById('xpDisplay');
+  el.textContent = totalXP;
+  if (gained > 0) {
+    el.classList.remove('xp-pop');
+    void el.offsetWidth;
+    el.classList.add('xp-pop');
+    playXPTick();
+  }
+}
+
+/* ================================================================
+   FLOW
+   ================================================================ */
+function startGame() {
+  curMission = 0; curQuestion = 0; totalXP = 0; correctCnt = 0;
+  updateXP(); playStart(); loadMission();
+}
+
+function loadMission() {
+  const m = MISSIONS[curMission];
+  document.getElementById('dialogMsg').textContent = m.dialog;
+  document.getElementById('rdNum').textContent     = m.num;
+  document.getElementById('rdName').textContent    = m.name;
+  document.getElementById('rdText').innerHTML      = m.text;
+  renderDots('dots1');
+  show('scReading');
+}
+
+function startQuestions() {
+  curQuestion = 0; missionXP = 0;
+  loadQuestion();
+}
+
+function loadQuestion() {
+  const q = MISSIONS[curMission].questions[curQuestion];
+  answered = false;
+  renderDots('dots2');
+
+  document.getElementById('qCounter').textContent =
+    `MISIÓN ${curMission + 1} · PREGUNTA ${curQuestion + 1} DE ${QS_PER_MISSION}`;
+  document.getElementById('qProgressFill').style.width =
+    `${((curQuestion + 1) / QS_PER_MISSION) * 100}%`;
+
+  document.getElementById('qSentence').innerHTML =
+    `${q.pre} <span class="blank-slot" id="blankSlot">_ _ _</span> ${q.post}`;
+
+  const letters = ['A', 'B', 'C'];
+  document.getElementById('qOptions').innerHTML = q.opts.map((opt, i) =>
+    `<button class="opt-btn" id="opt${i}" onclick="pickAnswer(${i})">
+       <span class="opt-letter">${letters[i]}</span><span>${opt}</span>
+     </button>`
+  ).join('');
+
+  document.getElementById('fbBox').className = 'feedback-box';
+  document.getElementById('nextBtn').style.display = 'none';
+  show('scQuestion');
+}
+
+function pickAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const q  = MISSIONS[curMission].questions[curQuestion];
+  const ok = idx === q.ans;
+
+  for (let i = 0; i < 3; i++) {
+    const b = document.getElementById(`opt${i}`);
+    if (b) b.disabled = true;
+  }
+  document.getElementById(`opt${q.ans}`).classList.add('is-correct');
+  if (!ok) document.getElementById(`opt${idx}`).classList.add('is-wrong');
+
+  const slot = document.getElementById('blankSlot');
+  slot.textContent = q.opts[q.ans];
+  slot.classList.add(ok ? 'correct-fill' : 'wrong-fill');
+
+  const fb = document.getElementById('fbBox');
+  document.getElementById('fbIcon').textContent = ok ? '✓' : '✗';
+  document.getElementById('fbText').textContent  = ok ? q.fb
+    : `Respuesta correcta: "${q.opts[q.ans]}". ${q.fb}`;
+  fb.className = 'feedback-box show ' + (ok ? 'fb-ok' : 'fb-bad');
+
+  if (ok) {
+    totalXP += 10; missionXP += 10; correctCnt++;
+    updateXP(10); playCorrect();
+  } else {
+    playWrong();
+  }
+  document.getElementById('nextBtn').style.display = 'inline-flex';
+}
+
+function nextQuestion() {
+  curQuestion++;
+  if (curQuestion >= MISSIONS[curMission].questions.length) {
+    showMissionDone();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showMissionDone() {
+  const m = MISSIONS[curMission];
+  document.getElementById('doneBadge').textContent      = m.emoji;
+  document.getElementById('doneMissionName').textContent = m.name;
+  document.getElementById('doneXP').textContent          = `+${missionXP} XP obtenidos`;
+  playMissionDone();
+  show('scMissionDone');
+}
+
+function nextMission() {
+  curMission++;
+  if (curMission >= MISSIONS.length) { showFinal(); }
+  else { loadMission(); }
+}
+
+function showFinal() {
+  const total = MISSIONS.length * QS_PER_MISSION;
+  const pct   = (correctCnt / total) * 100;
+  let grade, msg;
+  if (pct >= 90) {
+    grade = 'A';
+    msg   = '¡Desempeño sobresaliente! Dominas los clústeres tecnológicos, la nanotecnología en México y la Industria 4.0. Estás listo/a para colaborar en estos ecosistemas de innovación.';
+  } else if (pct >= 75) {
+    grade = 'B';
+    msg   = '¡Buen trabajo! Comprendes los conceptos principales. Repasa los centros de investigación nanotecnológica y las tecnologías de la Industria 4.0 para completar tu conocimiento.';
+  } else if (pct >= 60) {
+    grade = 'C';
+    msg   = 'Vas por buen camino. Revisa el material sobre los clústeres regionales, el PIIT y las tecnologías de la Industria 4.0 para fortalecer tu aprendizaje.';
+  } else {
+    grade = 'D';
+    msg   = 'Necesitas repasar el material. Lee con atención los textos de cada misión y vuelve a intentarlo. ¡El conocimiento es el primer paso hacia la innovación!';
+  }
+  document.getElementById('rCorrect').textContent = `${correctCnt}/${total}`;
+  document.getElementById('rXP').textContent      = totalXP;
+  document.getElementById('rGrade').textContent   = grade;
+  document.getElementById('rMsg').textContent     = msg;
+  playGameDone();
+  show('scFinal');
+}
+
+function restartGame() { show('scIntro'); }
+
+/* init */
+updateXP();
+</script>
+</body>
+</html>
