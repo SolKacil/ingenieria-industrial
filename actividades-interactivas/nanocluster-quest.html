@@ -291,9 +291,9 @@
       <h1 class="game-title">NANOCLUSTER<br>QUEST</h1>
       <p class="game-subtitle">Explora los clústeres tecnológicos de México</p>
       <div class="stat-row">
-        <div class="stat-box"><div class="stat-icon">🗺️</div><div class="stat-label">Misiones</div><div class="stat-val">6</div></div>
-        <div class="stat-box"><div class="stat-icon">❓</div><div class="stat-label">Preguntas</div><div class="stat-val">24</div></div>
-        <div class="stat-box"><div class="stat-icon">⭐</div><div class="stat-label">XP máx.</div><div class="stat-val">240</div></div>
+        <div class="stat-box"><div class="stat-icon">🗺️</div><div class="stat-label">Misiones</div><div class="stat-val">8</div></div>
+        <div class="stat-box"><div class="stat-icon">❓</div><div class="stat-label">Preguntas</div><div class="stat-val">32</div></div>
+        <div class="stat-box"><div class="stat-icon">⭐</div><div class="stat-label">XP máx.</div><div class="stat-val">320</div></div>
       </div>
       <button class="btn btn-primary btn-lg" onclick="startGame()">▶&nbsp; INICIAR MISIÓN</button>
     </div>
@@ -683,6 +683,88 @@ const MISSIONS = [
         fb  : "¡Correcto! El PIIT es un ecosistema de alta tecnología que integra múltiples clústeres especializados. La presencia conjunta de nanotecnología, aeroespacial, biotecnología, software y automotriz lo convierte en referente latinoamericano."
       }
     ]
+  },
+
+  /* ─────────────── MISIÓN 07 ─────────────── */
+  {
+    num  : "MISIÓN 07",
+    name : "La Cadena de Valor de la Nanotecnología",
+    emoji: "⛓️",
+    dialog: "¡Misión de alto nivel industrial! La nanotecnología no es solo ciencia de laboratorio: genera valor en cuatro eslabones productivos. Identifica empresas mexicanas reales en cada nivel y comprende cómo fluye la innovación hasta el consumidor final.",
+    text : `<p>La cadena de valor de la nanotecnología, según la clasificación de <strong>Lux Research (2004)</strong>, se organiza en cuatro niveles. El <strong>Nivel 1: Nanomateriales</strong> comprende materias primas procesadas a escala nanométrica —nanopartículas, nanotubos de carbono, grafenos, quantum dots— que aprovechan el efecto cuántico para exhibir propiedades eléctricas, magnéticas y mecánicas superiores. En México, la empresa <strong>Nanomateriales S.A. de C.V.</strong>, establecida en 2009 dentro del Clúster de Nuevo León con una inversión de cuatro millones de dólares, produce dióxido de titanio, óxido de zinc, silicato de magnesio y <strong>grafenos</strong> con una capacidad de aproximadamente mil ochenta toneladas anuales.</p>
+<p>El <strong>Nivel 2: Nanointermedios</strong> son productos que incorporan nanomateriales y adquieren ventajas funcionales: recubrimientos, cables superconductores o pinturas con propiedades especiales. Empresas como <strong>Viakable</strong> y <strong>Servicios Condumex</strong> fabrican cables recubiertos con nanopartículas para mejorar conductibilidad y resistencia. <strong>Owens Corning</strong> produce espumas de poliestireno extruido con nanopartículas de sílice, y <strong>Nemak</strong> manufactura aleaciones de aluminio recubiertas con nanopartículas de alúmina para la industria automotriz. En el inventario nacional se registraron <strong>veintiún empresas</strong> en este nivel.</p>
+<p>El <strong>Nivel 3: Productos nano-habilitados</strong> son bienes de consumo final —automóviles, computadoras, electrodomésticos, dispositivos electrónicos— que incorporan nanointermedios. Con <strong>setenta y tres empresas</strong> identificadas, es el nivel más abundante en México. <strong>Whirlpool</strong> incorpora nanocomponentes en refrigeradores y lavadoras; <strong>IBM</strong> e <strong>Intel</strong> ensamblan computadoras y procesadores nano-habilitados en sus plantas del Distrito Federal. El <strong>Nivel 4: Nanoherramientas</strong> agrupa los instrumentos para visualizar, manipular y modelar materia a nanoescala, como los microscopios de fuerza atómica y los nanomanipuladores.</p>`,
+    questions: [
+      {
+        pre : "La empresa Nanomateriales S.A. de C.V., ubicada en el Clúster de Nanotecnología de Nuevo León, produce materiales como dióxido de titanio, óxido de zinc y",
+        post: ", con una capacidad de producción de aproximadamente mil ochenta toneladas anuales.",
+        opts: ["Diamantes sintéticos", "Grafenos", "Polímeros biodegradables"],
+        ans : 1,
+        fb  : "¡Correcto! Los grafenos son nanomateriales de carbono con propiedades extraordinarias: conductividad eléctrica superior y resistencia mecánica cien veces mayor que el acero. Nanomateriales S.A. de C.V. es una de las pocas empresas en México que los produce a escala industrial dentro del CNNL."
+      },
+      {
+        pre : "Los cables recubiertos con nanopartículas para mejorar su conductibilidad y resistencia, fabricados por Viakable y Servicios Condumex, son un ejemplo de",
+        post: "en la cadena de valor nanotecnológica.",
+        opts: ["Nanomateriales", "Nanointermedios", "Nanoherramientas"],
+        ans : 1,
+        fb  : "¡Correcto! Los nanointermedios incorporan nanomateriales y transfieren sus ventajas funcionales a un producto semiprocesado. El cable nanotecnológico es luego integrado en productos finales como automóviles, edificios o electrodomésticos, llegando así al consumidor final."
+      },
+      {
+        pre : "En el inventario de empresas nanotecnológicas de México (2010-2012),",
+        post: "empresas se ubicaron en el nivel de productos nano-habilitados, siendo el nivel más abundante del país.",
+        opts: ["4", "21", "73"],
+        ans : 2,
+        fb  : "¡Correcto! La mayoría de las empresas mexicanas en nanotecnología se concentran en el nivel de productos nano-habilitados. Solo cuatro empresas operaban en el nivel de nanomateriales, lo que indica que México importa buena parte de sus materias primas nano y tiene oportunidad de desarrollar este primer eslabón."
+      },
+      {
+        pre : "Los microscopios de fuerza atómica y los nanomanipuladores pertenecen al nivel de",
+        post: "en la cadena de valor, siendo los instrumentos que hacen posible trabajar con materia a escala nanométrica.",
+        opts: ["Nanointermedios", "Nanoherramientas", "Nanomateriales"],
+        ans : 1,
+        fb  : "¡Correcto! Las nanoherramientas son equipos especializados —microscopios de fuerza atómica (AFM), equipos de litografía, nanopinzas— que permiten visualizar, manipular y modelar materia a nanoescala. Son la base infraestructural de cualquier laboratorio de nanotecnología y representan una inversión crítica para centros como el CIMAV y el CINVESTAV."
+      }
+    ]
+  },
+
+  /* ─────────────── MISIÓN 08 ─────────────── */
+  {
+    num  : "MISIÓN 08",
+    name : "Retos y Perspectivas de la Nano en México",
+    emoji: "🌐",
+    dialog: "¡Misión de síntesis y visión crítica! Para convertirte en un/a profesional completo/a de la nanotecnología, debes conocer no solo sus avances, sino también los retos estructurales que enfrenta México para aprovechar al máximo esta tecnología.",
+    text : `<p>México ocupa el <strong>segundo lugar en América Latina</strong> en desarrollo de nanotecnología, detrás de Brasil y seguido por Argentina, de acuerdo con indicadores de publicaciones, infraestructura, convenios internacionales y recursos humanos. Desde 2009, el gobierno creó la <strong>Red Nacional de Nanociencia y Nanotecnología</strong> (coordinada por la SECIHTI, antes CONACYT) para articular el trabajo científico. Los laboratorios nacionales de referencia son el <strong>NANOTECH</strong> en Chihuahua (sede del CIMAV) y el <strong>LINAN</strong> en San Luis Potosí (sede del IPICyT).</p>
+<p>Sin embargo, México enfrenta retos estructurales significativos. El <strong>gasto en Investigación y Desarrollo Experimental (GIDE)</strong> no ha superado el <strong>0.4% del PIB</strong>, muy por debajo del mínimo del 1% recomendado por la OCDE. No existe una <strong>iniciativa nacional de nanotecnología</strong> que defina áreas prioritarias, metas comunes ni sectores estratégicos. Esta ausencia puede generar duplicidad de esfuerzos entre clústeres y desarticulación de cadenas productivas. El inventario académico (2010-2012) reveló una <strong>alta concentración geográfica</strong>: setenta de las 101 empresas identificadas se localizan en solo dos estados —Nuevo León y Ciudad de México—, lo que limita el impacto regional de la tecnología.</p>
+<p>Desde la perspectiva de <strong>pertinencia social</strong>, los críticos señalan que el enfoque de los clústeres nanotecnológicos, orientado a la competitividad empresarial y al mercado, no necesariamente atiende las necesidades de los sectores más vulnerables. También existe una <strong>laguna temática</strong>: en México hay poca discusión pública sobre los impactos sociales, laborales, ambientales y de salud de los nanomateriales. Se requiere la participación de actores más allá del gobierno, la academia y las empresas —como organizaciones civiles y sindicatos— para diseñar una política nanotecnológica verdaderamente inclusiva y con visión de largo plazo.</p>`,
+    questions: [
+      {
+        pre : "En América Latina, México ocupa el",
+        post: "lugar en desarrollo de nanotecnología, detrás de Brasil, según indicadores de publicaciones, infraestructura y recursos humanos.",
+        opts: ["Primer", "Segundo", "Quinto"],
+        ans : 1,
+        fb  : "¡Correcto! México es el segundo país de América Latina en nanotecnología. Destaca por sus laboratorios nacionales (NANOTECH y LINAN), el Clúster de Nuevo León y sus redes de investigación articuladas por la SECIHTI, aunque aún existe una brecha importante respecto a los países líderes a nivel global."
+      },
+      {
+        pre : "El gasto mexicano en Investigación y Desarrollo Experimental (GIDE) no ha superado el",
+        post: "por ciento del PIB, cifra que se ubica muy por debajo del mínimo del 1% recomendado por la OCDE.",
+        opts: ["0.4", "2.5", "4.0"],
+        ans : 0,
+        fb  : "¡Correcto! El bajo gasto en CyT es uno de los principales obstáculos estructurales del sistema de innovación mexicano. Países líderes en nanotecnología como Corea del Sur, Alemania o Estados Unidos invierten entre 3% y 5% de su PIB en I+D, lo que explica en gran medida su ventaja tecnológica."
+      },
+      {
+        pre : "La Red Nacional de Nanociencia y Nanotecnología fue creada en",
+        post: "para articular el trabajo científico en nanotecnología a nivel nacional, conectando centros de investigación, universidades y empresas.",
+        opts: ["2001", "2005", "2009"],
+        ans : 2,
+        fb  : "¡Correcto! La Red Nacional de Nanociencia y Nanotecnología fue creada en 2009. Junto con los laboratorios nacionales NANOTECH (Chihuahua) y LINAN (San Luis Potosí), constituye la columna vertebral del ecosistema científico nano de México y facilita la colaboración entre grupos de investigación de todo el país."
+      },
+      {
+        pre : "Una de las principales debilidades del ecosistema nanotecnológico en México es la alta",
+        post: "de empresas en solo dos regiones del país: Nuevo León y la Ciudad de México.",
+        opts: ["Diversificación", "Concentración", "Exportación"],
+        ans : 1,
+        fb  : "¡Correcto! Setenta de las 101 empresas del inventario (2010-2012) se ubicaban en Nuevo León y la Ciudad de México. Esta concentración geográfica limita los beneficios regionales de la nanotecnología y plantea la necesidad de una política nacional que promueva el desarrollo nano en otros estados, incluyendo Veracruz."
+      }
+    ]
   }
 ];
 
@@ -695,6 +777,8 @@ let totalXP     = 0;
 let correctCnt  = 0;
 let missionXP   = 0;
 let answered    = false;
+let shuffledOpts = [];
+let shuffledAns  = 0;
 const QS_PER_MISSION = 4;
 
 /* ================================================================
@@ -762,7 +846,17 @@ function loadQuestion() {
     `${q.pre} <span class="blank-slot" id="blankSlot">_ _ _</span> ${q.post}`;
 
   const letters = ['A', 'B', 'C'];
-  document.getElementById('qOptions').innerHTML = q.opts.map((opt, i) =>
+
+  // Shuffle options (Fisher-Yates) keeping track of correct answer
+  const idx = [0, 1, 2];
+  for (let i = idx.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  shuffledOpts = idx.map(i => q.opts[i]);
+  shuffledAns  = idx.indexOf(q.ans);
+
+  document.getElementById('qOptions').innerHTML = shuffledOpts.map((opt, i) =>
     `<button class="opt-btn" id="opt${i}" onclick="pickAnswer(${i})">
        <span class="opt-letter">${letters[i]}</span><span>${opt}</span>
      </button>`
@@ -777,23 +871,23 @@ function pickAnswer(idx) {
   if (answered) return;
   answered = true;
   const q  = MISSIONS[curMission].questions[curQuestion];
-  const ok = idx === q.ans;
+  const ok = idx === shuffledAns;
 
   for (let i = 0; i < 3; i++) {
     const b = document.getElementById(`opt${i}`);
     if (b) b.disabled = true;
   }
-  document.getElementById(`opt${q.ans}`).classList.add('is-correct');
+  document.getElementById(`opt${shuffledAns}`).classList.add('is-correct');
   if (!ok) document.getElementById(`opt${idx}`).classList.add('is-wrong');
 
   const slot = document.getElementById('blankSlot');
-  slot.textContent = q.opts[q.ans];
+  slot.textContent = shuffledOpts[shuffledAns];
   slot.classList.add(ok ? 'correct-fill' : 'wrong-fill');
 
   const fb = document.getElementById('fbBox');
   document.getElementById('fbIcon').textContent = ok ? '✓' : '✗';
   document.getElementById('fbText').textContent  = ok ? q.fb
-    : `Respuesta correcta: "${q.opts[q.ans]}". ${q.fb}`;
+    : `Respuesta correcta: "${shuffledOpts[shuffledAns]}". ${q.fb}`;
   fb.className = 'feedback-box show ' + (ok ? 'fb-ok' : 'fb-bad');
 
   if (ok) {
